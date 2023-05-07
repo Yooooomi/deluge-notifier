@@ -58,7 +58,7 @@ class Core(CorePluginBase):
     def notify(self, username: str, torrent_id: str):
         torrent: Torrent = deluge.component.get('TorrentManager')[torrent_id]
         params = {"username": username, "title": f"Le fichier {torrent.get_name()} est téléchargé", "content": "Il devrait être disponible"}
-        requests.post("https://notification.yooooomi.com/notify", params=params)
+        requests.post("https://notification.yooooomi.com/api/notify", params=params)
 
     def on_torrent_finish(self, torrent_id: str):
         torrent: Torrent = deluge.component.get('TorrentManager')[torrent_id]
