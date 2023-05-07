@@ -8,15 +8,15 @@
 # the OpenSSL library. See LICENSE for more details.
 from setuptools import find_packages, setup
 
-__plugin_name__ = 'Deluge Notifier'
-__author__ = 'Timothee Boususs'
+__plugin_name__ = 'notifier'
+__author__ = 'Timothee Boussus'
 __author_email__ = 'timothee.boussus@gmail.com'
 __version__ = '0.1'
 __url__ = ''
 __license__ = 'GPLv3'
 __description__ = ''
 __long_description__ = """"""
-__pkg_data__ = {'deluge_'+__plugin_name__.lower(): ['data/*']}
+__pkg_data__ = {'deluge-'+__plugin_name__.lower(): ['data/*']}
 
 setup(
     name=__plugin_name__,
