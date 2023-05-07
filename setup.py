@@ -16,7 +16,7 @@ __url__ = ''
 __license__ = 'GPLv3'
 __description__ = ''
 __long_description__ = """"""
-__pkg_data__ = {'deluge-'+__plugin_name__.lower(): ['data/*']}
+__pkg_data__ = {'deluge_'+__plugin_name__.lower(): ['data/*']}
 
 setup(
     name=__plugin_name__,

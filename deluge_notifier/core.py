@@ -32,7 +32,8 @@ class Core(CorePluginBase):
     def enable(self):
         log.debug('Enabling')
         self.config = deluge.configmanager.ConfigManager(
-            'deluge-notifier.conf', DEFAULT_PREFS)
+            'deluge-notifier.conf', defaults=DEFAULT_PREFS)
+        self.config.save()
 
         rpcServer: RPCServer = deluge.component.get('RPCServer')
         rpcServer.register_object(self)
@@ -57,8 +58,12 @@ class Core(CorePluginBase):
 
     def notify(self, username: str, torrent_id: str):
         torrent: Torrent = deluge.component.get('TorrentManager')[torrent_id]
-        params = {"username": username, "title": f"Le fichier {torrent.get_name()} est téléchargé", "content": "Il devrait être disponible"}
-        requests.post("https://notification.yooooomi.com/api/notify", params=params)
+        params = {"username": username, "title": f"Fichier téléchargé", "content": f"{torrent.get_name()} est disponible"}
+        requests.post(f"{self.config['notification_server_endpoint']}/notify", json=params)
+
+    def delete_torrent_from_config(self, torrent_id: str):
+        del(self.config['torrent_id_to_username'][torrent_id])
+        self.config.save()
 
     def on_torrent_finish(self, torrent_id: str):
         torrent: Torrent = deluge.component.get('TorrentManager')[torrent_id]
@@ -67,12 +72,13 @@ class Core(CorePluginBase):
             return
         found_username = self.config['torrent_id_to_username'][torrent_id]
         log.info(f"Found username {found_username}, sending notification")
-        self.notify(torrent_id)
+        self.notify(found_username, torrent_id)
+        self.delete_torrent_from_config(torrent_id)
 
     def on_torrent_removed(self, torrent_id: str):
         if torrent_id not in self.config['torrent_id_to_username']:
             return
-        del(self.config['torrent_id_to_username'][torrent_id])
+        self.delete_torrent_from_config(torrent_id)
 
     @export
     def add_torrent_with_username(self, username: str, add_options):
@@ -84,6 +90,7 @@ class Core(CorePluginBase):
         added_torrent_id = torrent_manager.add(torrent_info=torrent_info, options=options)
         
         self.config['torrent_id_to_username'][added_torrent_id] = username
+        self.config.save()
 
     @export
     def set_config(self, config):
