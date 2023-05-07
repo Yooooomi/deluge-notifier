@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 
 DEFAULT_PREFS = {
     'notification_server_endpoint': '',
+    'notification_server_context': '',
     'torrent_id_to_username': {}
 }
 
@@ -73,7 +74,11 @@ class Core(CorePluginBase):
 
     def notify(self, username: str, torrent_id: str):
         torrent: Torrent = deluge.component.get('TorrentManager')[torrent_id]
-        params = {"username": username, "title": f"Fichier téléchargé", "content": f"{torrent.get_name()} est disponible"}
+        params = {
+            "username": username,
+            "title": f"Fichier téléchargé", "content": f"{torrent.get_name()} est disponible",
+            "context": self.config["notification_server_context"]
+        }
         requests.post(f"{self.config['notification_server_endpoint']}/notify", json=params)
 
     def on_torrent_finish(self, torrent_id: str):
